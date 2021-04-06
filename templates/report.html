@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block content %}
+  {% if has_active_payment %}
+  <section class="gap-bottom-big">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h3 class="gap-bottom-big">My Club Report</h3>
+
+          <div class="club-filter-area">
+            <div id="reportrange" class="report-range pull-left">
+              <i class="fa fa-calendar"></i>&nbsp; <span></span> <i class="fa fa-caret-down"></i>
+            </div>
+
+            <div class="select-area pull-right">
+              <label for="club-select">Club: </label>
+              <select id="club-select">
+                {% for c in club_list %}
+                  <option value="{{ c }}">{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+          <div id="club-chart-wrapper" class="gap-top-big">
+            <canvas id="club-chart-line-1"></canvas>
+          </div>
+        </div>
+
+        <div class="col-md-12">
+          <h3 class="gap-top-bottom-big">My Putting Report</h3>
+
+          <div class="select-area pull-right">
+            <select id="putting-select">
+              <option value="acc" selected>Acc</option>
+              <option value="short">Short</option>
+              <option value="long">Long</option>
+              <option value="right">Right</option>
+              <option value="left">Left</option>
+            </select>
+          </div>
+
+          <div class="clearfix"></div>
+
+          <div id="putting-chart-wrapper" class="gap-top-big">
+            <canvas id="putting-chart-line-1"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="gap-bottom-big">
+    <div class="container">
+      <div class="row">
+        <!-- Today's Activity -->
+        <div class="col-md-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title pull-left date-input">Today's Activity</h4>
+              <div class="pull-right">
+{#                <a><i class="fa fa-external-link"></i></a>#}
+                <div id="single_date_picker" style="cursor: pointer">
+                  <i class="fa fa-calendar"></i>&nbsp; <span></span>
+                </div>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+              <!-- circle chart -->
+              <div class="row gap-top-bottom-big">
+                <div class="col-sm-6 text-center">
+
+                  <div class="prgbar-font-lg prg_daily_overall" data-prgbar="circle" data-val="0" data-width="12" data-size="200"
+                       data-specific="prg_overall_accuracy"></div>
+
+                  <div class="prgbar-row-mobilegap"></div>
+                </div>
+                <div class="col-sm-6 text-center">
+
+                  <div class="prgbar-font-lg prg_daily_bestclub" data-prgbar="circle" data-val="0" data-width="12" data-size="200"
+                       data-specific="prg_best_club" data-best-club=""></div>
+
+                  <div class="prgbar-row-mobilegap"></div>
+                </div>
+              </div>
+
+              <!-- bar chart -->
+              <div class="row gap-bottom-big">
+                <div class="col-sm-12" id="daily_chart_wrapper">
+                  <canvas id="chart-bar-1"></canvas>
+                </div>
+              </div>
+
+              <!-- practice -->
+              <div class="row practice-sessions">
+                <div>Full Swing: <span id="daily-long-count">0</span></div>
+                <div>Round the Greens: <span id="daily-short-count">0</span></div>
+                <div>Putting Game: <span id="daily-putting-count">0</span></div>
+              </div>
+
+              <!-- club info -->
+              <div class="row row-flex-wrap" id="daily_club_info">
+
+              </div>
+
+              <div class="row panel-cell-wrapper">
+                <div class="col-sm-4 text-center panel-cell">
+                  <label>Practice time</label>
+                  <span>5:00:47</span>
+                </div>
+                <div class="col-sm-4 text-center panel-cell">
+                  <label>completed</label>
+                  <span>100%</span>
+                </div>
+                <div class="col-sm-4 text-center panel-cell">
+                  <label>Longest Distance</label>
+                  <span id="daily-long-dist">200 yds</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Practice Sessions & Trouble shots -->
+        <div class="col-md-6">
+          <!-- Practice Sessions -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">Practice Sessions</h4>
+            </div>
+            <div class="panel-body practice-sessions">
+              <div>Full Swing: <span>{{ practice_sessions.long }}</span></div>
+              <div>Round the Greens: <span>{{ practice_sessions.short }}</span></div>
+              <div>Putting Game: <span>{{ practice_sessions.putting }}</span></div>
+            </div>
+          </div>
+
+          <!-- Trouble shots -->
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h4 class="panel-title">Trouble Shots</h4>
+            </div>
+            <div class="panel-body">
+              {% for shot in missing_shots %}
+                <div class="trouble-shot-item">
+                  {{ shot.distance }} yds
+                  {% if shot.aim %}, {{ shot.aim }}{% endif %}
+                  {% if shot.trajectory %}, {{ shot.trajectory }}{% endif %}
+                  &nbsp;<i>({{ shot.reported_at|naturaltime }})</i>
+                </div>
+              {% empty %}
+                <div class="trouble-shot-item">(empty)</div>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+   <!-- csrf-token -->
+  {% csrf_token %}
+
+  {% else %}
+    {% include 'paywall.html' %}
+  {% endif %}
+
+{% endblock %}
+
+{% block extra_script %}
+  <script type="text/javascript">
+
+    // Global Chart Options:
+    Chart.defaults.global.defaultFontColor = '#efefef';
+    Chart.defaults.global.defaultFontSize = 14;
+  </script>
+  {% if has_active_payment %}<script type="text/javascript" src="{% static 'js/report.js' %}"></script>{% endif %}
+{% endblock %}

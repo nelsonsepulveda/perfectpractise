@@ -1,0 +1,11 @@
+<section class="gap-bottom-lg">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h3 class="gap-top-bottom-big">Sorry, You need to create a subscription.</h3>
+        <h2 class="gap-bottom-lg">&dollar;{{ sub_fee|floatformat:-2 }} <sub>/mon</sub></h2>
+        <p>Please click <a href="{% url 'billing_info' pk=user.id %}">here</a> to fill your payment info.</p>
+      </div>
+    </div>
+  </div>
+</section>

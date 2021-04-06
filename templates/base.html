@@ -1,0 +1,143 @@
+{% load static %}
+{% load pp_template_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{% block title %}Perfect Practice{% endblock %}</title>
+
+  <!-- jQuery -->
+  <script type="text/javascript" src="{% static 'vendor/jquery/jquery-3.3.1.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/jquery/jquery.validate.min.js' %}"></script>
+
+  <!-- moment.js -->
+  <script type="text/javascript" src="{% static 'vendor/moment.min.js' %}"></script>
+
+  <!-- bootstrap -->
+  <link href="{% static 'vendor/bootstrap/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static 'vendor/bootstrap/bootstrap.min.js' %}"></script>
+
+  <!-- date-picker -->
+  <link href="{% static 'vendor/bootstrap/bootstrap-datepicker3.min.css' %}" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static 'vendor/bootstrap/bootstrap-datepicker.min.js' %}"></script>
+
+  <!-- daterange picker -->
+  <link href="{% static 'vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static 'vendor/daterangepicker.min.js' %}"></script>
+
+  <!-- chart-->
+  <script type="text/javascript" src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/chart.js/Chart.bundle.min.js' %}"></script>
+
+  <!-- progressbar -->
+  <script type="text/javascript" src="{% static 'vendor/progressbar.js-master/progressbar.min.js' %}"></script>
+
+  <!-- font awesome -->
+  <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css" media="all">
+
+  <!-- stylesheet -->
+  <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" media="all">
+
+  <!-- favicon -->
+  <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
+
+  <!-- custom javascript -->
+  <script type="text/javascript" src="{% static 'js/lib/chart.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/lib/progressbar.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/all.js' %}"></script>
+
+  {% block extra_head %}
+
+  {% endblock %}
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'core:report' %}{% else %}{% url 'core:home' %}{% endif %}">
+{#      <span class="logo header_mod">Perfect Practice</span>#}
+      <img src="{% static 'img/logo.png' %}" alt="Perfect Practice" class="logo header_mod"/>
+    </a>
+  </div>
+
+  <div class="collapse navbar-collapse navbar-ex1-collapse">
+
+    <!-- Top Menu Items -->
+    <ul class="nav navbar-right top-nav">
+
+      {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'core:report' %}" class="{% nav_active request 'report' %}">Home</a>
+        </li>
+
+        <li>
+          <a href="{% url 'profile' pk=user.id %}" class="{% nav_active request 'profile' %}">Profile</a>
+        </li>
+
+        <li>
+          <a href="{% url 'billing_info' pk=user.id %}" class="{% nav_active request 'billing_info' %}">Billing Info</a>
+        </li>
+
+        <li>
+          <a href="{% url 'logout' %}">Log out</a>
+        </li>
+        <li>
+          <a href="{% url 'profile' pk=user.id %}" class="avatar" title="Welcome {{ user.username }}!">
+          {% if user.photo_url|length == 0 %}
+            <img src="{% static 'img/default_avatar.jpg' %}" alt="User Photo"/>
+          {% else %}
+            <img src="{{ user.photo_url }}" alt="User Photo"/>
+          {% endif %}
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <a href="{% url 'login' %}" class="{% nav_active request 'login' %}">Login</a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+
+</nav>
+
+<div class="wrapper">
+  <div id="page-wrapper">
+    {% block content %}
+    {% endblock %}
+  </div>
+
+  <div class="footer">
+    <div class="footer_in">
+      <ul class="footer_links_list">
+        <li class="footer_links_item">
+          <a class="footer_links_link" href="#">Contact</a>
+        </li>
+        <li class="footer_links_item">
+          <a class="footer_links_link" href="#">Support</a>
+        </li>
+        <li class="footer_links_item">
+          <a class="footer_links_link" href="#">About</a>
+        </li>
+      </ul>
+
+      <a href="/" class="logo footer_mod">Perfect Practice</a>
+    </div>
+  </div>
+</div>
+<!-- /#page-wrapper -->
+{% block extra_script %}{% endblock %}
+
+</body>
+</html>

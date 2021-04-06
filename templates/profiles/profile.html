@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-offset-3 col-sm-6">
+        <h2 class="gap-bottom-big">My Profile</h2>
+
+        <!-- profile review -->
+        <div class="review-wrapper">
+
+          {% if profile.photo_url %}
+            <div>
+              <img src="{{ profile.photo_url }}" alt="No Photo" id="user-photo">
+            </div>
+          {% endif %}
+
+          <div>
+            <p><label>Name:</label>{{ profile.first_name }} {{ profile.last_name }}</p>
+            <p><label>Handicap:</label>{{ profile.handicap|default_if_none:"(empty)" }}</p>
+            <p><label>Birthday:</label>{{ profile.birthday|default_if_none:"(empty)" }}</p>
+            <p><label>Location:</label>{{ profile.location|default_if_none:"(empty)" }}</p>
+            <p><label>Years of Experience:</label>{{ profile.years_of_experience }}</p>
+
+            <button class="btn btn-primary gap-top-big btn-switch-to-form">Change profile</button>
+          </div>
+
+        </div>
+
+        <!-- form area -->
+        <div class="update-form-wrapper" style="display: none">
+
+          {% if form.errors %}
+            {% for field in form %}
+              {% for error in field.errors %}
+                {% include 'alerts/danger.html' with alert_title='' alert_body=error %}
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              {% include 'alerts/danger.html' with alert_title='' alert_body=error %}
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">{% csrf_token %}
+{#            {% if user.photo_url|length > 0 %}#}
+{#              <img src="{{ profile.photo_url }}" alt="No Photo" id="user-photo">#}
+{#            {% endif %}#}
+            <!-- photo -->
+            <div class="form-group">
+              <label for="{{ form.photo.id_for_label }}">{{ form.photo.label|safe }}
+                {% if form.photo.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+              </label>
+              {{ form.photo }}
+            </div>
+
+            <!-- name -->
+            <div style="display: flex; justify-content: space-between">
+              <div class="form-group">
+                <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label|safe }}
+                  {% if form.first_name.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+                </label>
+                {{ form.first_name }}
+              </div>
+              <div class="form-group">
+                <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label|safe }}
+                  {% if form.last_name.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+                </label>
+                {{ form.last_name }}
+              </div>
+            </div>
+
+            <!-- handicap -->
+            <div class="form-group">
+              <label for="{{ form.handicap.id_for_label }}">{{ form.handicap.label|safe }}
+                {% if form.handicap.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+              </label>
+              {{ form.handicap }}
+            </div>
+
+            <!-- birthday -->
+            <div class="form-group">
+              <label for="{{ form.birthday.id_for_label }}">{{ form.birthday.label|safe }}
+                {% if form.birthday.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+              </label>
+              {{ form.birthday }}
+            </div>
+
+            <!-- location -->
+            <div class="form-group">
+              <label for="{{ form.location.id_for_label }}">{{ form.location.label|safe }}
+                {% if form.location.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+              </label>
+              {{ form.location }}
+            </div>
+
+            <!-- years_of_experience -->
+            <div class="form-group">
+              <label for="{{ form.years_of_experience.id_for_label }}">{{ form.years_of_experience.label|safe }}
+                {% if form.years_of_experience.field.required %}<span class="required" aria-required="true"> * </span>{% endif %}
+              </label>
+              {{ form.years_of_experience }}
+            </div>
+
+            <div class="form-group" style="display: flex; justify-content: flex-end">
+              <button class="btn btn-primary btn-small" type="submit">Save</button>
+              <button class="btn btn-default btn-small btn-profile-cancel" type="reset">Cancel</button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}

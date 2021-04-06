@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-offset-2 col-md-8">
+
+        <h2 class="gap-bottom-mid">My Billing Info</h2>
+
+        {% if has_active_payment is None %}
+
+
+          <p style="font-size: 18px"><strong>Price: </strong>&dollar;{{ sub_fee|floatformat:-2 }} <sub>/mon</sub></p>
+
+          {% if form.errors %}
+            {% for field in form %}
+              {% for error in field.errors %}
+                {% include 'alerts/danger.html' with alert_title='' alert_body=error %}
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              {% include 'alerts/danger.html' with alert_title='' alert_body=error %}
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" id="billingForm" novalidate>{% csrf_token %}
+            {{ form.stripe_token }}
+
+            <!-- Account information -->
+            <div class="row" style="background: #fff; color: #555; padding-top: 20px;">
+              <div class="col-sm-12">
+                <h3 class="gap-bottom-big">Account information</h3>
+              </div>
+
+              <div class="form-group col-sm-6">
+                <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                {{ form.first_name }}
+              </div>
+              <div class="form-group col-sm-6">
+                <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                {{ form.last_name }}
+              </div>
+              <div class="clearfix"></div>
+              <div class="form-group col-sm-6">
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                {{ form.email }}
+              </div>
+              <div class="form-group col-sm-6">
+                <label for="{{ form.postcode.id_for_label }}">{{ form.postcode.label }}</label>
+                {{ form.postcode }}
+              </div>
+              <div class="clearfix"></div>
+              <div class="form-group col-sm-12">
+                <label for="{{ form.address_line1.id_for_label }}">{{ form.address_line1.label }}</label>
+                {{ form.address_line1 }}
+              </div>
+              <div class="form-group col-sm-12">
+                <label for="{{ form.address_line2.id_for_label }}">{{ form.address_line2.label }}</label>
+                {{ form.address_line2 }}
+              </div>
+
+              <div class="form-group col-sm-6">
+                <label for="{{ form.state.id_for_label }}">{{ form.state.label }}</label>
+                {{ form.state }}
+              </div>
+              <div class="form-group col-sm-6">
+                <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                {{ form.city }}
+              </div>
+              <div class="clearfix"></div>
+              <div class="form-group col-sm-6">
+                {{ form.country }}
+              </div>
+            </div>
+
+            <!-- Payment information -->
+            <div class="row"  style="background: #fff; color: #555; padding-top: 20px;">
+              <div class="col-sm-12">
+                <h3 class="gap-bottom-big">Payment information</h3>
+              </div>
+              <div class="clearfix"></div>
+
+              <div id="id_cc_errors" style="display: none">
+                <div class="alert alert-danger">
+                  <strong>Stripe Error</strong>
+                  <p>
+                    {# error details #}
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-group stripe-input">
+                <label for="id_card_number" class="col-sm-4">Card Number:</label>
+                <div id="id_card_number" class="col-sm-8"></div>
+                <div class="clearfix"></div>
+              </div>
+              <div class="form-group stripe-input">
+                <label for="id_card_expiry" class="col-sm-4">Expiration Date (Month / Year):</label>
+                <div id="id_card_expiry" class="col-sm-8"></div>
+                <div class="clearfix"></div>
+              </div>
+              <div class="form-group stripe-input">
+                <label for="id_card_cvc" class="col-sm-4">CVC code:</label>
+                <div id="id_card_cvc" class="col-sm-8"></div>
+                <div class="clearfix"></div>
+              </div>
+
+              <div class="form-group col-sm-12">
+                <button class="btn btn-primary btn-pay gap-bottom-mid pull-right" type="submit">Pay now</button>
+              </div>
+            </div>
+          </form>
+
+        {% else %}
+          <div class="review-wrapper billing gap-top-lg">
+            <p><label>Email:</label>{{ billing_info.email|default_if_none:"(empty)" }}</p>
+            <p><label>Name:</label>{{ billing_info.billing_name }}</p>
+            <p><label>Card:</label>{{ billing_info.brand }} XXXX{{ billing_info.last4 }}</p>
+            <p><label>Expire Date:</label>{{ billing_info.exp_month }} / {{ billing_info.exp_year }}</p>
+            <p><label>Address:</label>
+              {% if billing_info.address_line1 %}
+                {{ billing_info.address_line1 }}, {{ billing_info.address_line2|default_if_none:"" }}<br>
+                {{ billing_info.city }}, {{ billing_info.state }}, {{ billing_info.country }}
+              {% endif %}
+            </p>
+            <p><label>Status:</label>
+              <span class="{% if has_active_payment %}green{% endif %}">
+                {{ billing_info.subscription_status|capfirst }}
+              </span>
+            </p>
+            {% if has_active_payment %}
+            <p><label>Next Billing Date:</label>{{ billing_info.current_period_end|date }}</p>
+            {% endif %}
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block extra_script %}
+
+  {% if has_active_payment is None %}
+  <script src="//js.stripe.com/v3/"></script>
+  <script>
+      // stripe
+      var stripe = Stripe("{{ stripe_api_key }}");
+      var elements = stripe.elements();
+      var style = {
+          {#          base: {#}
+          {#              fontSize: '1.18rem'#}
+          {#          }#}
+      };
+      var card_cvc = elements.create('cardCvc', {style: style});
+      var card_number = elements.create('cardNumber', {style: style});
+      var card_expiry = elements.create('cardExpiry', {style: style});
+
+      card_expiry.mount('#id_card_expiry');
+      card_number.mount('#id_card_number');
+      card_cvc.mount('#id_card_cvc');
+
+  </script>
+  {% endif %}
+
+  <script src="{% static 'js/billing.js' %}"></script>
+
+{% endblock %}
