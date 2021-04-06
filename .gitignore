@@ -9,4 +9,4 @@ media/
 set_env.sh
 my_work/*
 logs/
-env/*
+env

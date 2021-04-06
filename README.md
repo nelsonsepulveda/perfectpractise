@@ -1,16 +1,15 @@
 # API document
-## /docs/
-## /docs/swagger/ 
+* ## /swagger/ 
 
 # Admin Dashboard
-## /admin/
+* ## /admin/
 
 # REST Framework
-## /api/v1/
+* ## /api/v1/
 
 # Dump/LoadData
-* python manage.py dumpdata constant > constant.json
-* python manage.py loaddata constant.json
+> python manage.py dumpdata constant > constant.json
+> python manage.py loaddata constant.json
 
-
-* Stripeinfo register: price & plan_id
+# Stripeinfo 
+* Register price & plan_id
