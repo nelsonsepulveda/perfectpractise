@@ -9,6 +9,7 @@
 
 # Dump/LoadData
 > python manage.py dumpdata constant > constant.json
+> 
 > python manage.py loaddata constant.json
 
 # Stripeinfo 
